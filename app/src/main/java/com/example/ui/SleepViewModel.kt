@@ -76,6 +76,22 @@ class SleepViewModel(application: Application) : AndroidViewModel(application) {
     private val _customAudioDurationMs = MutableStateFlow(prefs.getLong("custom_audio_duration_ms", 30000L))
     val customAudioDurationMs: StateFlow<Long> = _customAudioDurationMs.asStateFlow()
 
+    // Pre-made ambient nature sounds state
+    private val _ambientDurationMinutes = MutableStateFlow(prefs.getInt("ambient_duration_minutes", 15))
+    val ambientDurationMinutes: StateFlow<Int> = _ambientDurationMinutes.asStateFlow()
+
+    val playingAmbientId: StateFlow<String?> = AudioAlarmManager.playingAmbientId.asStateFlow()
+    val ambientTimeRemainingSec: StateFlow<Int> = AudioAlarmManager.ambientTimeRemainingSec.asStateFlow()
+
+    val customWindVol: StateFlow<Float> = AudioAlarmManager.customWindVol.asStateFlow()
+    val customRainVol: StateFlow<Float> = AudioAlarmManager.customRainVol.asStateFlow()
+    val customStreamVol: StateFlow<Float> = AudioAlarmManager.customStreamVol.asStateFlow()
+    val customCampfireVol: StateFlow<Float> = AudioAlarmManager.customCampfireVol.asStateFlow()
+    val customChimesVol: StateFlow<Float> = AudioAlarmManager.customChimesVol.asStateFlow()
+
+    private val _playingPremadePreviewId = MutableStateFlow<String?>(null)
+    val playingPremadePreviewId: StateFlow<String?> = _playingPremadePreviewId.asStateFlow()
+
     private val audioManager = AudioAlarmManager(application)
 
     // Local data flows
@@ -182,6 +198,52 @@ class SleepViewModel(application: Application) : AndroidViewModel(application) {
 
     fun stopPreview() {
         audioManager.stopPreview()
+    }
+
+    fun updateAmbientDuration(minutes: Int) {
+        _ambientDurationMinutes.value = minutes
+        prefs.edit().putInt("ambient_duration_minutes", minutes).apply()
+    }
+
+    fun playAmbientSound(soundId: String) {
+        audioManager.playAmbient(soundId, _ambientDurationMinutes.value)
+    }
+
+    fun stopAmbientSound() {
+        AudioAlarmManager.stopActiveAmbient()
+    }
+
+    fun playPremadePreview(soundId: String) {
+        stopPremadePreview()
+        _playingPremadePreviewId.value = soundId
+        if (soundId == "custom_audio") {
+            _customAudioUri.value?.let { uri ->
+                audioManager.playPreview(uri, _customAudioStartMs.value, _customAudioEndMs.value)
+            }
+        } else {
+            audioManager.playAlert(soundId)
+        }
+    }
+
+    fun stopPremadePreview() {
+        _playingPremadePreviewId.value = null
+        audioManager.stopAll()
+    }
+
+    fun updateCustomWindVol(vol: Float) {
+        AudioAlarmManager.customWindVol.value = vol
+    }
+    fun updateCustomRainVol(vol: Float) {
+        AudioAlarmManager.customRainVol.value = vol
+    }
+    fun updateCustomStreamVol(vol: Float) {
+        AudioAlarmManager.customStreamVol.value = vol
+    }
+    fun updateCustomCampfireVol(vol: Float) {
+        AudioAlarmManager.customCampfireVol.value = vol
+    }
+    fun updateCustomChimesVol(vol: Float) {
+        AudioAlarmManager.customChimesVol.value = vol
     }
 
     fun updateProfile(name: String, age: String, address: String, photoUri: String?, gender: String, chronotype: String) {

@@ -119,6 +119,9 @@ class SleepReceiver : BroadcastReceiver() {
                 val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
                 nm.cancel(1003) // Close wake up notification
             }
+            ACTION_STOP_AMBIENT -> {
+                AudioAlarmManager.stopActiveAmbient()
+            }
         }
     }
 
@@ -270,6 +273,7 @@ class SleepReceiver : BroadcastReceiver() {
         const val ACTION_WAKEUP = "com.sleepreminders.app.ACTION_WAKEUP"
         const val ACTION_SNOOZE = "com.sleepreminders.app.ACTION_SNOOZE"
         const val ACTION_DISMISS = "com.sleepreminders.app.ACTION_DISMISS"
+        const val ACTION_STOP_AMBIENT = "com.sleepreminders.app.ACTION_STOP_AMBIENT"
 
         // App navigation triggers
         const val ACTION_START_NOW = "com.sleepreminders.app.ACTION_START_NOW"

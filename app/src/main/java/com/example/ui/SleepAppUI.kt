@@ -108,7 +108,10 @@ fun SleepAppNavigation(viewModel: SleepViewModel) {
         Scaffold(
             bottomBar = {
                 if (!isAlarmActive) {
-                    SleepBottomBar(currentTab = currentTab, onTabSelect = { currentTab = it })
+                    SleepBottomBar(currentTab = currentTab, onTabSelect = { 
+                        viewModel.stopPremadePreview()
+                        currentTab = it 
+                    })
                 }
             },
             containerColor = Color.Transparent
@@ -128,6 +131,7 @@ fun SleepAppNavigation(viewModel: SleepViewModel) {
                     when (targetTab) {
                         "dashboard" -> DashboardScreen(viewModel = viewModel, onGoToScheduler = { currentTab = "scheduler" })
                         "scheduler" -> SchedulerScreen(viewModel = viewModel)
+                        "nature_sounds" -> AmbientSoundsScreen(viewModel = viewModel)
                         "analytics" -> AnalyticsScreen(viewModel = viewModel)
                         "settings" -> SettingsScreen(viewModel = viewModel)
                     }
@@ -177,6 +181,18 @@ fun SleepBottomBar(currentTab: String, onTabSelect: (String) -> Unit) {
                 selectedIconColor = MaterialTheme.colorScheme.primary,
                 selectedTextColor = MaterialTheme.colorScheme.primary
             )
+        )
+        NavigationBarItem(
+            selected = currentTab == "nature_sounds",
+            onClick = { onTabSelect("nature_sounds") },
+            icon = { Icon(Icons.Default.MusicNote, contentDescription = "Ambience") },
+            label = { Text("Sounds", fontWeight = FontWeight.SemiBold) },
+            colors = NavigationBarItemDefaults.colors(
+                indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.25f),
+                selectedIconColor = MaterialTheme.colorScheme.primary,
+                selectedTextColor = MaterialTheme.colorScheme.primary
+            ),
+            modifier = Modifier.testTag("app_nav_sounds_tab")
         )
         NavigationBarItem(
             selected = currentTab == "analytics",
@@ -944,6 +960,206 @@ fun DashboardScreen(viewModel: SleepViewModel, onGoToScheduler: () -> Unit) {
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
+                        }
+                    }
+                }
+            }
+        }
+
+        // Smart Adaptive AI Sleep Companion
+        item {
+            val profileName by viewModel.profileName.collectAsState()
+            val profileAge by viewModel.profileAge.collectAsState()
+            val profileAddress by viewModel.profileAddress.collectAsState()
+            val profileGender by viewModel.profileGender.collectAsState()
+            val profileChronotype by viewModel.profileChronotype.collectAsState()
+
+            val ageInt = profileAge.toIntOrNull() ?: 25
+            val targetHours = when {
+                ageInt < 18 -> 9.0
+                ageInt in 18..64 -> 8.0
+                else -> 7.5
+            }
+
+            val chronoEmoji = when {
+                profileChronotype.contains("owl", ignoreCase = true) -> "🦉"
+                profileChronotype.contains("bird", ignoreCase = true) -> "🌅"
+                profileChronotype.contains("dolphin", ignoreCase = true) -> "🐬"
+                else -> "🐻"
+            }
+
+            val chronoTitle = when {
+                profileChronotype.contains("owl", ignoreCase = true) -> "Night Owl"
+                profileChronotype.contains("bird", ignoreCase = true) -> "Early Bird"
+                profileChronotype.contains("dolphin", ignoreCase = true) -> "Dolphin"
+                else -> "The Bear"
+            }
+
+            val chronoInsight = when {
+                profileChronotype.contains("owl", ignoreCase = true) -> {
+                    "You are biologically tuned for late productivity. Avoid cognitive tasks after 10:00 PM. We have auto-adjusted soundscapes: Cosmic Thunderstorms ⛈️ or crackling woods matches your cerebral wind-down perfectly."
+                }
+                profileChronotype.contains("bird", ignoreCase = true) -> {
+                    "Your peak biological clocks trigger massive early cortisol spikes. Wind-down suggested around 9:30 PM. Use Calming Chimes 🔔 to gently ease your bright awake state."
+                }
+                profileChronotype.contains("dolphin", ignoreCase = true) -> {
+                    "Light & sensitive sleeper. Easily disturbed by surrounding noises. Steady Babbling Brooks 🌊 or White Noise 💨 are dynamically structured to insulate you against nocturnal arousals. Try a 20-min Power Nap ⚡ to reset cognitive exhaustion."
+                }
+                else -> {
+                    "Directly synchronized with the earth's natural solar cycle. Ensure you target $targetHours hours of rest. Forest birds 🐦 or deep ocean waves 🌊 creates the perfect resonance for clean morning awakening."
+                }
+            }
+
+            Card(
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.15f)),
+                border = BorderStroke(1.2.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("smart_companion_card")
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(18.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            Text(text = chronoEmoji, fontSize = 28.sp)
+                            Column {
+                                Text(
+                                    text = "SMART CHRONO COMPANION",
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    letterSpacing = 1.sp
+                                )
+                                Text(
+                                    text = "Insights for $profileName ($chronoTitle)",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onBackground
+                                )
+                            }
+                        }
+                        Box(
+                            modifier = Modifier
+                                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f), RoundedCornerShape(12.dp))
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                        ) {
+                            Text(
+                                text = "ACTIVE ADAPTIVE",
+                                fontSize = 9.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Bio metrics row
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        // Diagnostic Target
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.6f), RoundedCornerShape(12.dp))
+                                .padding(10.dp)
+                        ) {
+                            Column {
+                                Text("Rest Target", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(
+                                    text = "$targetHours Hours",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
+                        // Gender alignment
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.6f), RoundedCornerShape(12.dp))
+                                .padding(10.dp)
+                        ) {
+                            Column {
+                                Text("Tone Preference", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(
+                                    text = if (profileGender.trim().isNotEmpty()) profileGender else "Warm Harmonic",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.secondary
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Text(
+                        text = chronoInsight,
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.85f),
+                        lineHeight = 17.sp
+                    )
+
+                    Spacer(modifier = Modifier.height(14.dp))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Sanctuary Advisor
+                    Row(
+                        verticalAlignment = Alignment.Top,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text("🏡", fontSize = 18.sp)
+                        Column {
+                            Text(
+                                text = "SANCTUARY ENVIRONMENT ADVISOR",
+                                fontSize = 9.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.secondary,
+                                letterSpacing = 0.8.sp
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = "Physical readings simulated for: $profileAddress",
+                                fontSize = 11.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                Column {
+                                    Text("ROOM TEMP", fontSize = 8.sp, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f))
+                                    Text("19.4°C (Ideal)", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+                                }
+                                Column {
+                                    Text("HUMIDITY", fontSize = 8.sp, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f))
+                                    Text("45% (Perfect)", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+                                }
+                                Column {
+                                    Text("AIR QUALITY", fontSize = 8.sp, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f))
+                                    Text("12 AQI (Pure)", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+                                }
+                            }
                         }
                     }
                 }
@@ -1912,6 +2128,7 @@ fun SettingsScreen(viewModel: SleepViewModel) {
     val isDark by viewModel.isDarkTheme.collectAsState()
     val soundId by viewModel.selectedSoundId.collectAsState()
     val customText by viewModel.customTtsText.collectAsState()
+    val playingPremadePreviewId by viewModel.playingPremadePreviewId.collectAsState()
 
     var showRestoreDialog by remember { mutableStateOf(false) }
     var restoreInput by remember { mutableStateOf("") }
@@ -2015,16 +2232,58 @@ fun SettingsScreen(viewModel: SleepViewModel) {
                     )
 
                     soundsList.forEach { (label, sId) ->
+                        val isPreviewing = playingPremadePreviewId == sId
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
+                                .clip(RoundedCornerShape(8.dp))
                                 .clickable { viewModel.selectSound(sId) }
-                                .padding(vertical = 8.dp),
+                                .padding(vertical = 4.dp, horizontal = 4.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(label, fontSize = 13.sp, fontWeight = if (soundId == sId) FontWeight.Bold else FontWeight.Normal)
-                            RadioButton(selected = soundId == sId, onClick = { viewModel.selectSound(sId) })
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(32.dp)
+                                        .background(
+                                            if (isPreviewing) MaterialTheme.colorScheme.error.copy(alpha = 0.15f)
+                                            else MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+                                            CircleShape
+                                        )
+                                        .clickable {
+                                            if (isPreviewing) {
+                                                viewModel.stopPremadePreview()
+                                            } else {
+                                                viewModel.playPremadePreview(sId)
+                                            }
+                                        }
+                                        .testTag("premade_preview_btn_$sId"),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = if (isPreviewing) Icons.Default.Stop else Icons.Default.PlayArrow,
+                                        contentDescription = "Preview $label",
+                                        tint = if (isPreviewing) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                }
+                                Text(
+                                    text = label, 
+                                    fontSize = 13.sp, 
+                                    fontWeight = if (soundId == sId) FontWeight.Bold else FontWeight.Normal,
+                                    color = if (soundId == sId) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                            RadioButton(
+                                selected = soundId == sId, 
+                                onClick = { viewModel.selectSound(sId) },
+                                modifier = Modifier.testTag("premade_radio_$sId")
+                            )
                         }
                     }
 
@@ -2649,6 +2908,516 @@ fun TipItem(emoji: String, title: String, desc: String) {
                 fontSize = 11.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 lineHeight = 15.sp
+            )
+        }
+    }
+}
+
+// ---------------- AMBIENT NATURE SOUNDS SCREEN ----------------
+
+@Composable
+fun SoundVisualizer(isPlaying: Boolean) {
+    if (!isPlaying) {
+        Box(
+            modifier = Modifier
+                .size(70.dp)
+                .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.MusicNote,
+                contentDescription = "Silent",
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+                modifier = Modifier.size(32.dp)
+            )
+        }
+        return
+    }
+
+    val infiniteTransition = rememberInfiniteTransition(label = "ambient_pulse")
+    val pulse1 by infiniteTransition.animateFloat(
+        initialValue = 0.8f,
+        targetValue = 1.3f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1400, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "pulse1"
+    )
+    val pulse2 by infiniteTransition.animateFloat(
+        initialValue = 1.0f,
+        targetValue = 1.6f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2000, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "pulse2"
+    )
+
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier.size(70.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .scale(pulse2)
+                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f), CircleShape)
+        )
+        Box(
+            modifier = Modifier
+                .size(54.dp)
+                .scale(pulse1)
+                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.22f), CircleShape)
+        )
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .background(MaterialTheme.colorScheme.primary, CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.MusicNote,
+                contentDescription = "Playing",
+                tint = MaterialTheme.colorScheme.onPrimary,
+                modifier = Modifier.size(20.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun AmbientSoundsScreen(viewModel: SleepViewModel) {
+    val playingAmbientId by viewModel.playingAmbientId.collectAsState()
+    val ambientRemainingSec by viewModel.ambientTimeRemainingSec.collectAsState()
+    val ambientDuration by viewModel.ambientDurationMinutes.collectAsState()
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        // Top Header
+        item {
+            Column {
+                Text(
+                    text = "NATURE AMBIENT SOUNDS",
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
+                    letterSpacing = 1.2.sp
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = "Sleep Ambience Maker",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = "Listen to curated synthetic soundtracks with custom timers to help you unwind and rest.",
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+
+        // Active Player Card
+        item {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("ambient_active_player_card"),
+                colors = CardDefaults.cardColors(
+                    containerColor = if (playingAmbientId != null) 
+                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.85f)
+                    else 
+                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
+                ),
+                shape = RoundedCornerShape(20.dp),
+                border = BorderStroke(
+                    width = 1.dp,
+                    color = if (playingAmbientId != null) MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
+                    else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.15f)
+                )
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        SoundVisualizer(isPlaying = playingAmbientId != null)
+
+                        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            if (playingAmbientId != null) {
+                                val soundName = when (playingAmbientId) {
+                                    "sound_rain" -> "Rain Storm 🌧️"
+                                    "sound_ocean" -> "Ocean Waves 🌊"
+                                    "sound_birds" -> "Forest Birds 🐦"
+                                    "sound_white_noise" -> "Steady White Noise 💨"
+                                    "sound_soft_alarm" -> "Calming Chimes 🔔"
+                                    "sound_wind" -> "Gentle Breezes 🍃"
+                                    "sound_thunder" -> "Cosmic Thunderstorm ⛈️"
+                                    "sound_stream" -> "Babbling Brook 🌊"
+                                    "sound_frogs" -> "Summer Frogs 🐸"
+                                    "sound_campfire" -> "Crackling Campfire 🔥"
+                                    "sound_custom_mix" -> "Custom Sound Mix 🎛️"
+                                    else -> "Nature Sound"
+                                }
+                                Text(
+                                    text = soundName,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
+                                val remainingText = if (ambientRemainingSec > 0) {
+                                    val mins = ambientRemainingSec / 60
+                                    val secs = ambientRemainingSec % 60
+                                    String.format("%02d:%02d remaining", mins, secs)
+                                } else {
+                                    "Playing continuously (Infinite)"
+                                }
+                                Text(
+                                    text = remainingText,
+                                    fontSize = 12.sp,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
+                                )
+                            } else {
+                                Text(
+                                    text = "Ready to Play",
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Text(
+                                    text = "Pick a sound and duration below",
+                                    fontSize = 12.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                                )
+                            }
+                        }
+                    }
+
+                    if (playingAmbientId != null) {
+                        FilledIconButton(
+                            onClick = { viewModel.stopAmbientSound() },
+                            colors = IconButtonDefaults.filledIconButtonColors(
+                                containerColor = MaterialTheme.colorScheme.error,
+                                contentColor = MaterialTheme.colorScheme.onError
+                            ),
+                            modifier = Modifier
+                                .size(44.dp)
+                                .testTag("ambient_stop_btn")
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Stop,
+                                contentDescription = "Stop Ambient Sound",
+                                modifier = Modifier.size(22.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        // Custom Duration Selection Panel
+        item {
+            Card(
+                modifier = Modifier.fillMaxWidth().testTag("ambient_timer_duration_card"),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.4f)),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
+            ) {
+                Column(modifier = Modifier.padding(14.dp)) {
+                    Text(
+                        text = "⏱️ SELECT SLEEP TIMER DURATION",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary,
+                        letterSpacing = 1.sp
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    val durations = listOf(
+                        5 to "5 Min",
+                        15 to "15 Min",
+                        30 to "30 Min",
+                        60 to "60 Min",
+                        -1 to "Infinite ♾️"
+                    )
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        durations.forEach { (mins, displayText) ->
+                            val isSelected = ambientDuration == mins
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .background(
+                                        if (isSelected) MaterialTheme.colorScheme.primary 
+                                        else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+                                    )
+                                    .clickable {
+                                        viewModel.updateAmbientDuration(mins)
+                                        // If already playing, restart with new duration
+                                        val playingId = playingAmbientId
+                                        if (playingId != null) {
+                                            viewModel.playAmbientSound(playingId)
+                                        }
+                                    }
+                                    .border(
+                                        1.dp, 
+                                        if (isSelected) Color.Transparent 
+                                        else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f),
+                                        RoundedCornerShape(10.dp)
+                                    )
+                                    .padding(vertical = 10.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = displayText,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
+                                    textAlign = TextAlign.Center
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Custom mixer card
+        item {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("ambient_custom_mixer_card"),
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f)),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.25f))
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = "🎛️ CUSTOM SOUND EFFECTS MIXER",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary,
+                            letterSpacing = 1.sp
+                        )
+                        Box(
+                            modifier = Modifier
+                                .background(MaterialTheme.colorScheme.secondaryContainer, RoundedCornerShape(4.dp))
+                                .padding(horizontal = 4.dp, vertical = 2.dp)
+                        ) {
+                            Text(
+                                text = "EXPERIMENTAL",
+                                fontSize = 8.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Design your perfect sleep soundscapes in real-time. Slide to blend individual physical waves.",
+                        fontSize = 11.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    val windVal by viewModel.customWindVol.collectAsState()
+                    val rainVal by viewModel.customRainVol.collectAsState()
+                    val streamVal by viewModel.customStreamVol.collectAsState()
+                    val campfireVal by viewModel.customCampfireVol.collectAsState()
+                    val chimesVal by viewModel.customChimesVol.collectAsState()
+
+                    CustomMixSliderRow(label = "Gentle Wind 🍃", value = windVal, onValueChange = viewModel::updateCustomWindVol)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    CustomMixSliderRow(label = "Forest Rain 🌧️", value = rainVal, onValueChange = viewModel::updateCustomRainVol)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    CustomMixSliderRow(label = "Flowing Stream 🌊", value = streamVal, onValueChange = viewModel::updateCustomStreamVol)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    CustomMixSliderRow(label = "Campfire Crackle 🔥", value = campfireVal, onValueChange = viewModel::updateCustomCampfireVol)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    CustomMixSliderRow(label = "Peaceful Chimes 🔔", value = chimesVal, onValueChange = viewModel::updateCustomChimesVol)
+
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    val isPlayingCustom = playingAmbientId == "sound_custom_mix"
+                    Button(
+                        onClick = {
+                            if (isPlayingCustom) {
+                                viewModel.stopAmbientSound()
+                            } else {
+                                viewModel.playAmbientSound("sound_custom_mix")
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(44.dp)
+                            .testTag("play_custom_mix_btn"),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (isPlayingCustom) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
+                        ),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Icon(
+                            imageVector = if (isPlayingCustom) Icons.Default.Pause else Icons.Default.PlayArrow,
+                            contentDescription = null
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = if (isPlayingCustom) "STOP CUSTOM AMBIENT MIX" else "START CUSTOM AMBIENT MIX",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 12.sp
+                        )
+                    }
+                }
+            }
+        }
+
+        // Curated Sound List Header
+        item {
+            Text(
+                text = "🎵 CURATED NATURE SOUNDS",
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary,
+                letterSpacing = 1.sp,
+                modifier = Modifier.padding(top = 4.dp, bottom = 2.dp)
+            )
+        }
+
+        val natureSounds = listOf(
+            NatureSoundItem("sound_rain", "Rain Storm 🌧️", "curated_rain_storm", "High density, filtered drop sounds forming a steady relaxing downpour."),
+            NatureSoundItem("sound_ocean", "Ocean Waves 🌊", "curated_ocean_waves", "Periodic slow volume-modulated low-frequency rolling ocean swell."),
+            NatureSoundItem("sound_birds", "Forest Birds 🐦", "curated_forest_birds", "Pleasant intermittent frequency-swept birds chirping on a soft field."),
+            NatureSoundItem("sound_wind", "Gentle Breezes 🍃", "curated_gentle_wind", "A soft, whistling wind blowing across leaves and rolling grass."),
+            NatureSoundItem("sound_thunder", "Cosmic Thunderstorm ⛈️", "curated_cosmic_thunder", "Soothing distant rumbling thunder cracks with light rain showers."),
+            NatureSoundItem("sound_stream", "Babbling Brook 🌊", "curated_babbling_stream", "The rich, rhythmic sound of sweet clear water rolling over smooth stones."),
+            NatureSoundItem("sound_frogs", "Summer Frogs 🐸", "curated_summer_frogs", "Intermittent twilight tree frogs chirping softly in a slow-paced rhythmic cadence."),
+            NatureSoundItem("sound_campfire", "Crackling Campfire 🔥", "curated_wood_fire", "A comforting wood fire with sparks crackling and deep glowing warmth."),
+            NatureSoundItem("sound_soft_alarm", "Calming Chimes 🔔", "curated_harmony_chimes", "Evolving five-note melodic chiming bells in a gentle relaxing rhythm."),
+            NatureSoundItem("sound_white_noise", "Steady White Noise 💨", "curated_white_noise", "Constant, smooth static isolation frequency to mask background echo.")
+        )
+
+        items(natureSounds) { sound ->
+            val isPlayingThis = playingAmbientId == sound.id
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("sound_card_${sound.tag}"),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = if (isPlayingThis) 
+                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f)
+                    else 
+                        MaterialTheme.colorScheme.surface.copy(alpha = 0.61f)
+                ),
+                border = BorderStroke(
+                    width = if (isPlayingThis) 2.dp else 1.dp,
+                    color = if (isPlayingThis) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.25f)
+                )
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(14.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = sound.name,
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (isPlayingThis) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = sound.description,
+                            fontSize = 11.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            lineHeight = 15.sp
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    Button(
+                        onClick = {
+                            if (isPlayingThis) {
+                                viewModel.stopAmbientSound()
+                            } else {
+                                viewModel.playAmbientSound(sound.id)
+                            }
+                        },
+                        shape = RoundedCornerShape(10.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (isPlayingThis) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
+                            contentColor = if (isPlayingThis) MaterialTheme.colorScheme.onError else MaterialTheme.colorScheme.onPrimary
+                        ),
+                        modifier = Modifier
+                            .height(36.dp)
+                            .testTag("play_btn_${sound.tag}")
+                    ) {
+                        Text(
+                            text = if (isPlayingThis) "STOP" else "PLAY",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+data class NatureSoundItem(
+    val id: String,
+    val name: String,
+    val tag: String,
+    val description: String
+)
+
+@Composable
+fun CustomMixSliderRow(label: String, value: Float, onValueChange: (Float) -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(text = label, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
+                Text(text = "${value.toInt()}%", fontSize = 11.sp, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
+            }
+            Slider(
+                value = value,
+                onValueChange = onValueChange,
+                valueRange = 0f..100f,
+                modifier = Modifier.height(24.dp)
             )
         }
     }

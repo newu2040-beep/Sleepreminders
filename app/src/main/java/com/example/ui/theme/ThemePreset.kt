@@ -15,7 +15,9 @@ enum class AppThemePreset(val displayName: String) {
     SAKURA_DREAM("Sakura Dream 🌸"),
     ARCTIC_WHITE("Arctic White ❄️"),
     SUNSET_PEACH("Sunset Peach 🍑"),
-    AMOLED("Pure AMOLED 🪵")
+    AMOLED("Pure AMOLED 🪵"),
+    COSMIC_FOREST("Cosmic Forest 🌲"),
+    STARRY_NEBULA("Starry Nebula 🌌")
 }
 
 // Pastel Palette Definitions
@@ -236,5 +238,55 @@ object ThemePalettes {
         onSurface = Color.White,
         surfaceVariant = Color(0xFF1C1C1D),
         onSurfaceVariant = Color(0xFFD6C8FF)
+    )
+
+    // 9. Cosmic Forest (Pine green & nebula indigo)
+    val CosmicForestDark = darkColorScheme(
+        primary = Color(0xFF48CAE4),
+        secondary = Color(0xFF52B788),
+        tertiary = Color(0xFF74C69D),
+        background = Color(0xFF070F11),
+        surface = Color(0xFF112225),
+        onPrimary = Color.White,
+        onSecondary = Color.White,
+        onBackground = Color(0xFFE8F5E9),
+        onSurface = Color(0xFFE8F5E9),
+        surfaceVariant = Color(0xFF1A363B)
+    )
+    val CosmicForestLight = lightColorScheme(
+        primary = Color(0xFF0077B6),
+        secondary = Color(0xFF1B4332),
+        tertiary = Color(0xFF2D6A4F),
+        background = Color(0xFFF1F8F5),
+        surface = Color(0xFFE8F2EE),
+        onPrimary = Color.White,
+        onSecondary = Color.White,
+        onBackground = Color(0xFF081C15),
+        onSurface = Color(0xFF081C15)
+    )
+
+    // 10. Starry Nebula (Deep cosmic magenta & brilliant orchids)
+    val StarryNebulaDark = darkColorScheme(
+        primary = Color(0xFFF72585),
+        secondary = Color(0xFF7209B7),
+        tertiary = Color(0xFF4CC9F0),
+        background = Color(0xFF060314),
+        surface = Color(0xFF161030),
+        onPrimary = Color.White,
+        onSecondary = Color.White,
+        onBackground = Color(0xFFFDF0F6),
+        onSurface = Color(0xFFFDF0F6),
+        surfaceVariant = Color(0xFF251A4D)
+    )
+    val StarryNebulaLight = lightColorScheme(
+        primary = Color(0xFFD01C6A),
+        secondary = Color(0xFF7209B7),
+        tertiary = Color(0xFF3F37C9),
+        background = Color(0xFFFFF7FA),
+        surface = Color(0xFFFBE4EC),
+        onPrimary = Color.White,
+        onSecondary = Color.White,
+        onBackground = Color(0xFF240412),
+        onSurface = Color(0xFF240412)
     )
 }

@@ -41,6 +41,12 @@ fun MyApplicationTheme(
         AppThemePreset.AMOLED -> {
             ThemePalettes.AmoledDark
         }
+        AppThemePreset.COSMIC_FOREST -> {
+            if (darkTheme) ThemePalettes.CosmicForestDark else ThemePalettes.CosmicForestLight
+        }
+        AppThemePreset.STARRY_NEBULA -> {
+            if (darkTheme) ThemePalettes.StarryNebulaDark else ThemePalettes.StarryNebulaLight
+        }
     }
 
     MaterialTheme(
