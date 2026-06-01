@@ -1,0 +1,6 @@
+{
+  "name": "Sleep Reminders",
+  "description": "A beautifully designed sleep reminder and alarm application that tracks sleep habits, calculates sleep cycles, and assists in healthy sleeping.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

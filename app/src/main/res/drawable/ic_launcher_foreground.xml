@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- Central soft ambient glow behind the moon -->
+    <path
+        android:fillColor="#15D3C2FF"
+        android:pathData="M 54 54 M 32 54 A 22 22 0 1 1 76 54 A 22 22 0 1 1 32 54" />
+
+    <!-- Highly Detailed Elegant Crescent Moon -->
+    <path
+        android:fillColor="#E5DEFF"
+        android:pathData="M 58,30 
+                 C 45,30 34,41 34,54 
+                 C 34,67 45,78 58,78 
+                 C 63.5,78 68.5,76 72.5,73 
+                 C 62.5,71.5 55,63.5 55,54 
+                 C 55,44.5 62.5,36.5 72.5,35 
+                 C 68.5,32 63.5,30 58,30 Z" />
+
+    <!-- Sparkling Golden North Star -->
+    <path
+        android:fillColor="#FFE15D"
+        android:pathData="M 72.5,43 
+                 L 74,48 
+                 L 79,49.5 
+                 L 74,51 
+                 L 72.5,56 
+                 L 71,51 
+                 L 66,49.5 
+                 L 71,48 Z" />
+
+    <!-- Tiny secondary spark -->
+    <path
+        android:fillColor="#D3C2FF"
+        android:pathData="M 42,39 L 43,41.5 L 45.5,42 L 43,42.5 L 42,45 L 41,42.5 L 38.5,42 L 41,41.5 Z" />
+</vector>
